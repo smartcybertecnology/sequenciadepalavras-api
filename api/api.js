@@ -1,20 +1,28 @@
-// sequenciadepalavras-api/api.js
-
 export default function handler(req, res) {
 
-  // ---------------------------------------------------
-  // 🔒 CORS – permite que seu jogo acesse a API de qualquer domínio
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // --------------------------------------------
+  // 🔒 CORS – Permitir SOMENTE o seu domínio
+  const allowedOrigins = [
+    "https://playjogosgratis.com",
+    "https://www.playjogosgratis.com"
+  ];
+
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Navegadores enviam OPTIONS antes do POST
+  // OPTIONS (pré-flight)
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  // ---------------------------------------------------
-  // 📚 Base de dados de palavras e dicas
+  // --------------------------------------------
+  // 📚 Base de dados
 
   const palavras = [
     "CASA","SOL","BOLA","GATO","PEIXE","ARVORE","FLOR","SAPO","CHUVA","LUA",
@@ -55,13 +63,10 @@ export default function handler(req, res) {
     BAIXO: "Não é alto"
   };
 
-  // ---------------------------------------------------
-  // 🚀 ROTAS
-
-  // 👉 GET
+  // --------------------------------------------
+  // 🚀 GET
   if (req.method === "GET") {
 
-    // ROTA: /api?mode=random
     if (req.query.mode === "random") {
       const palavra = palavras[Math.floor(Math.random() * palavras.length)];
       return res.status(200).json({
@@ -70,11 +75,11 @@ export default function handler(req, res) {
       });
     }
 
-    // ROTA PADRÃO → retorna todas
     return res.status(200).json({ palavras, dicas });
   }
 
-  // 👉 POST – verificar palavra
+  // --------------------------------------------
+  // 🚀 POST
   if (req.method === "POST") {
     const { palavra, tentativa } = req.body ?? {};
 
@@ -87,7 +92,7 @@ export default function handler(req, res) {
     });
   }
 
-  // 👉 MÉTODO NÃO PERMITIDO
+  // --------------------------------------------
+  // ❌ Método não permitido
   return res.status(405).json({ error: "Método não permitido" });
 }
-
