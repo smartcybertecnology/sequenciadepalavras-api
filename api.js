@@ -2,6 +2,20 @@
 
 export default function handler(req, res) {
 
+  // ---------------------------------------------------
+  // 🔒 CORS – permite que seu jogo acesse a API de qualquer domínio
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Navegadores enviam OPTIONS antes do POST
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // ---------------------------------------------------
+  // 📚 Base de dados de palavras e dicas
+
   const palavras = [
     "CASA","SOL","BOLA","GATO","PEIXE","ARVORE","FLOR","SAPO","CHUVA","LUA",
     "PATO","RUIM","BEM","PAO","MAIS","MENOS","TUDO","NADA","AGUA","FOGO",
@@ -42,11 +56,12 @@ export default function handler(req, res) {
   };
 
   // ---------------------------------------------------
-  // Rotas:
+  // 🚀 ROTAS
 
+  // 👉 GET
   if (req.method === "GET") {
 
-    // rota: /api?mode=random
+    // ROTA: /api?mode=random
     if (req.query.mode === "random") {
       const palavra = palavras[Math.floor(Math.random() * palavras.length)];
       return res.status(200).json({
@@ -55,18 +70,23 @@ export default function handler(req, res) {
       });
     }
 
-    // rota padrão: retorna todas
+    // ROTA PADRÃO → retorna todas
     return res.status(200).json({ palavras, dicas });
   }
 
-  // rota: verificar palavra  
+  // 👉 POST – verificar palavra
   if (req.method === "POST") {
-    const { palavra, tentativa } = req.body;
+    const { palavra, tentativa } = req.body ?? {};
+
+    if (!palavra || !tentativa) {
+      return res.status(400).json({ error: "Dados incompletos." });
+    }
 
     return res.status(200).json({
-      correta: tentativa === palavra
+      correta: tentativa.toUpperCase() === palavra.toUpperCase()
     });
   }
 
+  // 👉 MÉTODO NÃO PERMITIDO
   return res.status(405).json({ error: "Método não permitido" });
 }
