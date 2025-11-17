@@ -1,8 +1,7 @@
-// sequenciadepalavras-api/api/index.js
-
 export default function handler(req, res) {
 
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // 🔒 CORS – SOMENTE SEU DOMÍNIO
+  res.setHeader("Access-Control-Allow-Origin", "https://playjogosgratis.com");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -49,6 +48,7 @@ export default function handler(req, res) {
     BAIXO: "Não é alto"
   };
 
+  // 👉 GET
   if (req.method === "GET") {
 
     if (req.query.mode === "random") {
@@ -62,6 +62,7 @@ export default function handler(req, res) {
     return res.status(200).json({ palavras, dicas });
   }
 
+  // 👉 POST
   if (req.method === "POST") {
     const { palavra, tentativa } = req.body ?? {};
     if (!palavra || !tentativa) {
